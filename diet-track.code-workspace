@@ -1,0 +1,171 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"vue.volar",
+			"lokalise.i18n-ally",
+			"dbaeumer.vscode-eslint"
+		]
+	},
+	"settings": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"[typescript]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[vue]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[javascript]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[html]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[json]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[jsonc]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[yaml]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[yml]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"[md]": {
+			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+		},
+		"i18n-ally.localesPaths": "./locales",
+		"i18n-ally.sourceLanguage": "en",
+		"i18n-ally.keystyle": "nested",
+		"i18n-ally.tabStyle": "tab",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"typescript.format.enable": false,
+		"javascript.format.enable": false,
+		"json.format.enable": false,
+		"i18n-ally.extract.keyMaxLength": 60,
+		"i18n-ally.editor.preferEditor": true,
+		
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			// ".vscode": true,
+			"Attributes": true,
+			"wwwroot": true,
+			"bin": true,
+			"App_Browsers": true,
+			"Controllers": true,
+			"Helpers": true,
+			"Images": true,
+			"Libraries": true,
+			"Models": true,
+			"node_modules": true,
+			"obj": true,
+			"Resources": true,
+			"SqlServerTypes": true,
+			"Utils": true,
+			"Views": true,
+			"Properties": true,
+			"*.csproj": true,
+			"*.DotSettings": true,
+			"*.user": true,
+			"*.cs": true,
+			"**/Services/**": true,
+			"appsettings.json": true,
+			"libman.json": true,
+			"Database": true,
+			"Middlewares": true,
+			"Migrations": true,
+			"Filters": true
+		},
+		"search.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			".vscode": true,
+			"Attributes": true,
+			"bin": true,
+			"App_Browsers": true,
+			"Controllers": true,
+			"Helpers": true,
+			"Images": true,
+			"Libraries": true,
+			"Models": true,
+			"node_modules": true,
+			"obj": true,
+			"Resources": true,
+			"SqlServerTypes": true,
+			"Utils": true,
+			"Views": true,
+			"Properties": true,
+			"*.csproj": true,
+			"*.DotSettings": true,
+			"*.user": true,
+			"*.cs": true,
+			"appsettings.json": true,
+			"libman.json": true,
+			"package-lock.json": true,
+			"wwwroot": true,
+			"coverage": true,
+			"Database": true,
+			"Middlewares": true,
+			"Migrations": true,
+			"Filters": true,
+			"dist": true
+		},
+		"eslint.experimental.useFlatConfig": true,
+		"prettier.enable": false,
+		"eslint.format.enable": true,
+		"editor.formatOnPaste": false,
+		"editor.formatOnSave": false,
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit"
+		},
+		"eslint.validate": [
+			"javascript",
+			"javascriptreact",
+			"typescript",
+			"typescriptreact",
+			"html",
+			"vue",
+			"markdown",
+			"json",
+			"yml"
+		],
+		// Silent the stylistic rules in you IDE, but still auto fix them
+		// "eslint.rules.customizations": [
+		// 	{ "rule": "style/*", "severity": "off" },
+		// 	{ "rule": "*-indent", "severity": "off" },
+		// 	{ "rule": "*-spacing", "severity": "off" },
+		// 	{ "rule": "*-spaces", "severity": "off" },
+		// 	{ "rule": "*-order", "severity": "off" },
+		// 	{ "rule": "*-dangle", "severity": "off" },
+		// 	{ "rule": "*-newline", "severity": "off" },
+		// 	{ "rule": "*quotes", "severity": "off" },
+		// 	{ "rule": "*semi", "severity": "off" }
+		// ],
+		"cSpell.words": [
+			"antfu",
+			"clsx",
+			"composables",
+			"iconify",
+			"lucide",
+			"luxon",
+			"pinia",
+			"tailwindcss",
+			"unplugin",
+			"vueuse"
+		],
+	}
+}
