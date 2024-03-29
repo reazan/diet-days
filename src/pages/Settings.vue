@@ -97,15 +97,14 @@ const getNormalDayOptions = computed(() => {
 
 <template lang="pug">
 .w-full(v-if="store.settings.username === undefined").mt-10
-	.container.mb-2
-		Breadcrumb
-			BreadcrumbList
-				BreadcrumbItem
-					RouterLink(to="/") Home
-					BreadcrumbSeparator
-					RouterLink(to="/settings") Settings
-					BreadcrumbSeparator
-					BreadcrumbLink(href="javascript:void(0)") Init
+	Breadcrumb.mb-2
+		BreadcrumbList
+			BreadcrumbItem
+				RouterLink(to="/") Home
+				BreadcrumbSeparator
+				RouterLink(to="/settings") Settings
+				BreadcrumbSeparator
+				BreadcrumbLink(href="javascript:void(0)") Init
 	.flex.justify-center(v-if="currentStep === 'username'")
 		Card(style="width: 500px;")
 			CardHeader
@@ -123,16 +122,16 @@ const getNormalDayOptions = computed(() => {
 						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
 	.flex.justify-center(v-else-if="currentStep === 'diet-days'")
 		.flex.flex-col.gap-2
-			Card(style="width: 500px;")
+			Card(class="md:w-[500px]")
 				CardHeader
 					CardTitle Planner
 					CardDescription Define your meals of the week
 				CardContent
 					.flex.justify-between
-						div Define breakfast rules only once?
+						div Define breakfast only once?
 						div: Switch(v-model:checked="breakfastForAllWeek")
 					.flex.justify-between.mb-2
-						div Define snack rules only once?
+						div Define snack only once?
 						div: Switch(v-model:checked="snackForAllWeek")
 
 					.flex.gap-2.flex-wrap.mb-2
@@ -172,7 +171,7 @@ const getNormalDayOptions = computed(() => {
 					AccordionItem(v-if="snackForAllWeek" value="snack" key="snack")
 						AccordionTrigger Snacks
 						AccordionContent
-							div(v-for="o in snackWeek.options")
+							.mb-1(v-for="o in snackWeek.options")
 								span -&nbsp;
 								span {{ o.element }}
 					AccordionItem(v-for="day in defaultDietDays.filter(a => a.day !== 'all')" :key="day.day" :value="day.day")
