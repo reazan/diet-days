@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { Label } from "radix-vue";
-import { DrawerTrigger } from "vaul-vue";
-import type { DietDay } from "@/stores/main";
-import { buttonVariants } from "@/components/ui/button";
+import { RouterLink } from "vue-router";
+import DayDrawer from "./components/settings/DayDrawer.vue";
+import type { DietDay, DietDayType } from "@/stores/main";
+import CardFooter from "@/components/ui/card/CardFooter.vue";
 
 const store = useMainStore();
 const username = ref("");
@@ -14,47 +15,97 @@ const currentStep = ref<stepTypes>("username");
 
 const defaultDietDays = ref<Array<DietDay>>([
 	{
-		day: "Day 1",
+		day: "day1",
+		name: "Day 1",
 		options: [],
 	},
 	{
-		day: "Day 2",
+		day: "day2",
+		name: "Day 2",
 		options: [],
 	},
 	{
-		day: "Day 3",
+		day: "day3",
+		name: "Day 3",
 		options: [],
 	},
 	{
-		day: "Day 4",
+		day: "day4",
+		name: "Day 4",
 		options: [],
 	},
 	{
-		day: "Day 5",
+		day: "day5",
+		name: "Day 5",
 		options: [],
 	},
 	{
-		day: "Day 6",
+		day: "day6",
+		name: "Day 6",
 		options: [],
 	},
 	{
-		day: "Day 7",
+		day: "day7",
+		name: "Day 7",
 		options: [],
 	},
 ]);
-const selectedDietDay = ref<DietDay>();
+
+const breakfastForAllWeek = ref(false);
+const breakfastWeek = ref<DietDay>({
+	day: "all",
+	options: [],
+	name: "Breakfast",
+});
+const snackForAllWeek = ref(false);
+const snackWeek = ref<DietDay>({
+	day: "all",
+	options: [],
+	name: "Snacks",
+});
 
 const router = useRouter();
 function save() {
+	if (breakfastForAllWeek.value)
+		defaultDietDays.value.push(breakfastWeek.value);
+
+	if (snackForAllWeek.value)
+		defaultDietDays.value.push(snackWeek.value);
+
 	store.setupUsername(username.value);
 	store.setupDietDays(defaultDietDays.value);
 
 	router.push({ path: "/" });
 }
+
+const getNormalDayOptions = computed(() => {
+	const options = new Array<DietDayType>();
+
+	if (!breakfastForAllWeek.value)
+		options.push("breakfast");
+
+	options.push("lunch");
+
+	if (!snackForAllWeek.value)
+		options.push("snack");
+
+	options.push("dinner");
+
+	return options;
+});
 </script>
 
 <template lang="pug">
 .w-full(v-if="store.settings.username === undefined").mt-10
+	.container.mb-2
+		Breadcrumb
+			BreadcrumbList
+				BreadcrumbItem
+					RouterLink(to="/") Home
+					BreadcrumbSeparator
+					RouterLink(to="/settings") Settings
+					BreadcrumbSeparator
+					BreadcrumbLink(href="javascript:void(0)") Init
 	.flex.justify-center(v-if="currentStep === 'username'")
 		Card(style="width: 500px;")
 			CardHeader
@@ -65,104 +116,101 @@ function save() {
 					div(class="flex flex-col space-y-1.5")
 						Label(for="name") Name
 						Input(id="name" placeholder="Your name" type="text" v-model="username")
-			CardFooter(class="flex justify-between px-6 pb-6")
-				hr
+			CardFooter(class="flex justify-end px-6 pb-6")
 				Button.h-9(@click="currentStep = 'diet-days'" :disabled="username.trim() === ''" variant="outline")
 					.flex.gap-2.items-center
 						div Next
 						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
 	.flex.justify-center(v-else-if="currentStep === 'diet-days'")
 		.flex.flex-col.gap-2
-			.flex.gap-2.flex-wrap
-				Drawer(v-for="(day, i) in defaultDietDays")
-					DrawerTrigger(as-child)
-						Button(variant="outline")
-							.flex.items-center.gap-1.justify-start
-								Icon(:icon="`material-symbols:counter-${i + 1}-outline`" class="h-5 w-5")
-								span {{ day.day }}
-					DrawerContent
-						div(class="mx-auto w-full max-w-sm")
-							DrawerHeader
-								DrawerTitle {{ day.day }}
-								DrawerDescription Set your daily diet for {{ day.day }}
+			Card(style="width: 500px;")
+				CardHeader
+					CardTitle Planner
+					CardDescription Define your meals of the week
+				CardContent
+					.flex.justify-between
+						div Define breakfast rules only once?
+						div: Switch(v-model:checked="breakfastForAllWeek")
+					.flex.justify-between.mb-2
+						div Define snack rules only once?
+						div: Switch(v-model:checked="snackForAllWeek")
 
-							Tabs(default-value="launch" class="w-full")
-								TabsList(class="grid w-full grid-cols-2")
-									TabsTrigger(value="launch") Launch
-									TabsTrigger(value="dinner") Dinner
-								ScrollArea(class="h-96 w-full")
-									TabsContent(value="launch")
-										div.w-full
-											.text-center
-												Button(variant="link" @click="day.options.push({ tag: 'lunch', element: '', quantity: 0 })")
-													Icon(icon="material-symbols:note-stack-add-rounded" class="w-10 h-10")
-											div(v-for="options in day.options.filter(a => a.tag == 'lunch')" class="rounded-lg border mb-2 p-3")
-												Textarea(v-model="options.element").mb-2
-												div.flex.justify-between.items-center.text-sm
-													div.flex.items-center.gap-2
-														div Quantity
-														div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
-														div g
-													div
-														Button(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
-															Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
-									TabsContent(value="dinner")
-										div.w-full
-											.text-center
-												Button(variant="link" @click="day.options.push({ tag: 'dinner', element: '', quantity: 0 })")
-													Icon(icon="material-symbols:note-stack-add-rounded" class="w-10 h-10")
-											div(v-for="options in day.options.filter(a => a.tag == 'dinner')" class="rounded-lg border mb-2 p-3")
-												Textarea(v-model="options.element").mb-2
-												div.flex.justify-between.items-center.text-sm
-													div.flex.items-center.gap-2
-														div Quantity
-														div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
-														div g
-													div
-														Button(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
-															Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
-			div.flex.justify-center.gap-2.mt-2
-				Button.h-9(@click="currentStep = 'username'" variant="outline")
-					.flex.gap-2.items-center
-						div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
-						div Back
+					.flex.gap-2.flex-wrap.mb-2
+						.grow(v-if="breakfastForAllWeek")
+							DayDrawer(:day="breakfastWeek" :options="['breakfast']")
+						.grow(v-if="snackForAllWeek")
+							DayDrawer(:day="snackWeek" :options="['snack']")
 
-				Button.h-9(@click="currentStep = 'review'" variant="outline")
-					.flex.gap-2.items-center
-						div Next
-						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
+					hr.mb-2
+					.flex.gap-2.flex-wrap
+						.grow.w-60(v-for="d in defaultDietDays")
+							DayDrawer(:day="d" :options="getNormalDayOptions")
+				CardFooter(class="flex justify-end px-6 pb-6")
+					div.flex.gap-2
+						Button.h-9(@click="currentStep = 'username'" variant="outline")
+							.flex.gap-2.items-center
+								div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
+								div Back
 
+						Button.h-9(@click="currentStep = 'review'" variant="outline")
+							.flex.gap-2.items-center
+								div Next
+								div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
 	.flex.justify-center.w-100(v-else)
-		Table
-			TableHeader
-				TableRow
-					TableHead(class="w-[100px]") Day
-					TableHead Lunch
-					TableHead Dinner
-					TableHead(class="text-right") Amount
-			TableBody
-				TableRow(v-for="day in defaultDietDays" :key="day.day")
-					TableCell(class="font-medium") {{ day.day }}
-					TableCell
-						div(v-for="l in day.options.filter(a => a.tag == 'lunch')")
-							span -&nbsp;
-							Label {{ l.element }} ({{ l.quantity }}) g
-					TableCell
-						div(v-for="l in day.options.filter(a => a.tag == 'dinner')")
-							span -&nbsp;
-							Label {{ l.element }} ({{ l.quantity }}) g
-					TableCell(class="text-right") {{ day.options.reduce((sum, current) => sum + current.quantity, 0) }}
+		Card(style="width: 500px;")
+			CardHeader
+				CardTitle Review
+				CardDescription Check if it is all good
+			CardContent
+				Accordion(type="single" class="w-full" collapsible)
+					AccordionItem(v-if="breakfastForAllWeek" value="breakfast" key="breakfast")
+						AccordionTrigger Breakfast
+						AccordionContent
+							.mb-1(v-for="o in breakfastWeek.options")
+								span -&nbsp;
+								span {{ o.element }}
+					AccordionItem(v-if="snackForAllWeek" value="snack" key="snack")
+						AccordionTrigger Snacks
+						AccordionContent
+							div(v-for="o in snackWeek.options")
+								span -&nbsp;
+								span {{ o.element }}
+					AccordionItem(v-for="day in defaultDietDays.filter(a => a.day !== 'all')" :key="day.day" :value="day.day")
+						AccordionTrigger {{ day.name }}
+						AccordionContent
+							.mb-1(v-if="day.options.some(a => a.tag === 'breakfast')")
+								h1.text-1xl.font-semibold Breakfast
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'breakfast')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'lunch')")
+								h1.text-1xl.font-semibold Lunch
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'lunch')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'snack')")
+								h1.text-1xl.font-semibold Snacks
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'snack')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'dinner')")
+								h1.text-1xl.font-semibold Dinner
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'dinner')")
+									span -&nbsp;
+									span {{ o.element }}
 
-			div.flex.justify-end.gap-2.mt-2
-				Button.h-9(@click="currentStep = 'diet-days'" variant="outline")
-					.flex.gap-2.items-center
-						div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
-						div Back
+			CardFooter(class="flex justify-end px-6 pb-6")
+				div.flex.gap-2.mt-2
+					Button.h-9(@click="currentStep = 'diet-days'" variant="outline")
+						.flex.gap-2.items-center
+							div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
+							div Back
 
-				Button.h-9(@click="save()")
-					.flex.gap-2.items-center
-						div Save
-						div: Icon(icon="material-symbols:save" class="w-5 h-5")
+					Button.h-9(@click="save()")
+						.flex.gap-2.items-center
+							div Save
+							div: Icon(icon="material-symbols:save" class="w-5 h-5")
+
 div(v-else)
 	div {{ store.settings }}
 </template>

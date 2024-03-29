@@ -29,14 +29,16 @@ export const useMainStore = defineStore("main", () => {
 });
 
 export interface DietDay {
-	day: string
-	customName?: string
+	day: "day1" | "day2" | "day3" | "day4" | "day5" | "day6" | "day7" | "all"
+	name?: string
 	options: Array<DietDayOptions>
 	completed?: boolean
 }
 
+export type DietDayType = "lunch" | "dinner" | "breakfast" | "snack";
+
 export interface DietDayOptions {
-	tag: "lunch" | "dinner"
+	tag: DietDayType
 	element: string
 	quantity: number
 }
