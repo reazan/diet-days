@@ -8,7 +8,7 @@ const props = defineProps<{
 	options: DietDayType[]
 }>();
 
-const colsClass = computed(() => `grid w-full grid-cols-${props.options.length}`);
+const defaultValue = computed(() => props.options.includes("breakfast") ? "breakfast" : "lunch");
 </script>
 
 <template lang="pug">
@@ -26,8 +26,8 @@ Drawer
 				DrawerTitle {{ day.name }}
 				DrawerDescription Set your meal plan for {{ day.name }}
 
-			Tabs(default-value="lunch" class="w-full")
-				TabsList(:class="colsClass")
+			Tabs(:default-value="defaultValue" class="w-full")
+				TabsList(class="grid w-full" :class="{'grid-cols-2': options.length === 2, 'grid-cols-3': options.length === 3, 'grid-cols-4': options.length === 4 }")
 					TabsTrigger(v-for="o in options" :value="o") {{ o }}
 				ScrollArea(class="h-96 w-full")
 					TabsContent(v-for="o in options" :value="o")
