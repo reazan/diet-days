@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { Label } from "radix-vue";
+import { DrawerTrigger } from "vaul-vue";
 import type { DietDay } from "@/stores/main";
 import { buttonVariants } from "@/components/ui/button";
-import CardHeader from "@/components/ui/card/CardHeader.vue";
-import CardTitle from "@/components/ui/card/CardTitle.vue";
-
-import CardContent from "@/components/ui/card/CardContent.vue";
-import Input from "@/components/ui/input/Input.vue";
 
 const store = useMainStore();
 const username = ref("");
@@ -75,62 +71,57 @@ function save() {
 					.flex.gap-2.items-center
 						div Next
 						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
-	.flex.justify-center.gap-2(v-else-if="currentStep === 'diet-days'")
-		div(class="rounded-lg border p-3 text-left text-sm transition-all")
-			nav(class="grid gap-1 px-2 " style="min-width: 150px;")
-				template(v-for="(day, i) in defaultDietDays")
-					a(
-						href="javascript:void(0)"
-						:class="cn(buttonVariants({ variant: selectedDietDay == day ? 'default' : 'outline', size: 'icon', class: 'text-left' }), 'px-2 h-9 w-100')"
-						@click="selectedDietDay = day"
+	.flex.justify-center(v-else-if="currentStep === 'diet-days'")
+		.flex.flex-col.gap-2
+			.flex.gap-2.flex-wrap
+				Drawer(v-for="(day, i) in defaultDietDays")
+					DrawerTrigger(as-child)
+						Button(variant="outline")
+							.flex.items-center.gap-1.justify-start
+								Icon(:icon="`material-symbols:counter-${i + 1}-outline`" class="h-5 w-5")
+								span {{ day.day }}
+					DrawerContent
+						div(class="mx-auto w-full max-w-sm")
+							DrawerHeader
+								DrawerTitle {{ day.day }}
+								DrawerDescription Set your daily diet for {{ day.day }}
 
-					)
-						.flex.items-center.gap-2.justify-start
-							Icon(:icon="`material-symbols:counter-${i + 1}-outline`" class="h-5 w-5")
-							span {{ day.day }}
-		div(style="width: 450px;")
-			Card
-				CardHeader
-					CardTitle(v-if="selectedDietDay == null")
-						Label Select a day...
-					CardTitle(v-else) {{ selectedDietDay.day }}
-				CardContent(v-if="selectedDietDay != null")
-					div.w-full
-						div.flex.justify-between.items-center
-							div LUNCH
-							div
-								Button(variant="link" @click="selectedDietDay.options.push({ tag: 'lunch', element: '', quantity: 0 })")
-									Icon(icon="material-symbols:add-box-rounded" class="w-5 h-5")
-						hr.mb-2
-						div(v-for="options in selectedDietDay.options.filter(a => a.tag == 'lunch')" class="rounded-lg border mb-2 p-3")
-							Textarea(v-model="options.element").mb-2
-							div.flex.justify-between.items-center.text-sm
-								div.flex.items-center.gap-2
-									div Quantity
-									div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
-									div g
-								div
-									Button(variant="destructive" class="h-7" @click="selectedDietDay.options.splice(selectedDietDay.options.indexOf(options), 1)")
-										Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
-
-						div.flex.justify-between.items-center.mt-4
-							div DINNER
-							div
-								Button(variant="link" @click="selectedDietDay.options.push({ tag: 'dinner', element: '', quantity: 0 })")
-									Icon(icon="material-symbols:add-box-rounded" class="w-5 h-5")
-						hr.mb-2
-						div(v-for="options in selectedDietDay.options.filter(a => a.tag == 'dinner')" class="rounded-lg border mb-2 p-3")
-							Textarea(v-model="options.element").mb-2
-							div.flex.justify-between.items-center.text-sm
-								div.flex.items-center.gap-2
-									div Quantity
-									div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
-									div g
-								div
-									Button(variant="destructive" class="h-7" @click="selectedDietDay.options.splice(selectedDietDay.options.indexOf(options), 1)")
-										Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
-
-			div.flex.justify-end.gap-2.mt-2
+							Tabs(default-value="launch" class="w-full")
+								TabsList(class="grid w-full grid-cols-2")
+									TabsTrigger(value="launch") Launch
+									TabsTrigger(value="dinner") Dinner
+								ScrollArea(class="h-96 w-full")
+									TabsContent(value="launch")
+										div.w-full
+											.text-center
+												Button(variant="link" @click="day.options.push({ tag: 'lunch', element: '', quantity: 0 })")
+													Icon(icon="material-symbols:note-stack-add-rounded" class="w-10 h-10")
+											div(v-for="options in day.options.filter(a => a.tag == 'lunch')" class="rounded-lg border mb-2 p-3")
+												Textarea(v-model="options.element").mb-2
+												div.flex.justify-between.items-center.text-sm
+													div.flex.items-center.gap-2
+														div Quantity
+														div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
+														div g
+													div
+														Button(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
+															Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
+									TabsContent(value="dinner")
+										div.w-full
+											.text-center
+												Button(variant="link" @click="day.options.push({ tag: 'dinner', element: '', quantity: 0 })")
+													Icon(icon="material-symbols:note-stack-add-rounded" class="w-10 h-10")
+											div(v-for="options in day.options.filter(a => a.tag == 'dinner')" class="rounded-lg border mb-2 p-3")
+												Textarea(v-model="options.element").mb-2
+												div.flex.justify-between.items-center.text-sm
+													div.flex.items-center.gap-2
+														div Quantity
+														div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
+														div g
+													div
+														Button(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
+															Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
+			div.flex.justify-center.gap-2.mt-2
 				Button.h-9(@click="currentStep = 'username'" variant="outline")
 					.flex.gap-2.items-center
 						div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
@@ -140,6 +131,7 @@ function save() {
 					.flex.gap-2.items-center
 						div Next
 						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
+
 	.flex.justify-center.w-100(v-else)
 		Table
 			TableHeader

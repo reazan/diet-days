@@ -46,6 +46,8 @@ declare module 'vue' {
     ResizablePanelGroup: typeof import('./components/ui/resizable/ResizablePanelGroup.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScrollArea: typeof import('./components/ui/scroll-area/ScrollArea.vue')['default']
+    ScrollBar: typeof import('./components/ui/scroll-area/ScrollBar.vue')['default']
     Table: typeof import('./components/ui/table/Table.vue')['default']
     TableBody: typeof import('./components/ui/table/TableBody.vue')['default']
     TableCaption: typeof import('./components/ui/table/TableCaption.vue')['default']

@@ -4,20 +4,6 @@ import { Icon } from "@iconify/vue";
 import { useDark, useToggle } from "@vueuse/core";
 import TooltipContent from "./components/ui/tooltip/TooltipContent.vue";
 
-const attrs = useAttrs();
-
-const navMenuItems = [
-	{
-		name: "Overview",
-		path: "/",
-	},
-	{
-		name: "Settings",
-		path: "/settings",
-	},
-];
-
-const route = useRoute();
 const router = useRouter();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
@@ -32,7 +18,7 @@ header.sticky.z-40.top-0.backdrop-blur-lg.border-b.border-border(class="bg-backg
 	.container.flex.h-14.max-w-screen-2xl.items-center
 		.mr-4(class="md:mr-1 hidden md:flex")
 			RouterLink(to="/" :class="cn('mr-4 md:mr-2 lg:mr-6 flex items-center lg:space-x1 xl:space-x-2')")
-				span.font-bold DietTracker
+				span.font-bold DietDays
 			//- nav(:class="cn('flex items-center space-x-4 lg:space-x-6', attrs.class ?? '')")
 			//- 	RouterLink(
 			//- 		v-for="item in navMenuItems"
