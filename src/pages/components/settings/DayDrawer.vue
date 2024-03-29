@@ -8,14 +8,7 @@ const props = defineProps<{
 	options: DietDayType[]
 }>();
 
-const getDayNumber = computed(() => {
-	if (props.day.day === "all")
-		return 0;
-
-	return Number.parseInt(props.day.day.replace("day", ""));
-});
-
-const colsClass = computed(() => `grid-cols-${props.options.length}`);
+const colsClass = computed(() => `grid w-full grid-cols-${props.options.length}`);
 </script>
 
 <template lang="pug">
@@ -34,7 +27,7 @@ Drawer
 				DrawerDescription Set your meal plan for {{ day.name }}
 
 			Tabs(default-value="lunch" class="w-full")
-				TabsList(:class="`grid w-full ${colsClass}`")
+				TabsList(:class="colsClass")
 					TabsTrigger(v-for="o in options" :value="o") {{ o }}
 				ScrollArea(class="h-96 w-full")
 					TabsContent(v-for="o in options" :value="o")
