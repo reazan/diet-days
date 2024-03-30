@@ -21,7 +21,7 @@ export const useMainStore = defineStore("main", () => {
 	}
 
 	return {
-		settings: readonly(settings),
+		settings,
 		setupUsername,
 		setupCurrentDay,
 		setupDietDays,
@@ -33,6 +33,7 @@ export interface DietDay {
 	name?: string
 	options: Array<DietDayOptions>
 	completed?: boolean
+	completedWhen?: string
 }
 
 export type DietDayType = "lunch" | "dinner" | "breakfast" | "snack";
