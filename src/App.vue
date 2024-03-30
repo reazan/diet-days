@@ -8,8 +8,8 @@ const router = useRouter();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-function goToSettings() {
-	router.push({ path: "/settings" });
+function goto(path: string) {
+	router.push({ path });
 }
 </script>
 
@@ -19,12 +19,6 @@ header.sticky.z-40.top-0.backdrop-blur-lg.border-b.border-border(class="bg-backg
 		.mr-4(class="md:mr-1 hidden md:flex")
 			RouterLink(to="/" :class="cn('mr-4 md:mr-2 lg:mr-6 flex items-center lg:space-x1 xl:space-x-2')")
 				span.font-bold DietDays
-			//- nav(:class="cn('flex items-center space-x-4 lg:space-x-6', attrs.class ?? '')")
-			//- 	RouterLink(
-			//- 		v-for="item in navMenuItems"
-			//- 		:to="item.path"
-			//- 		:class="cn('text-sm font-medium transition-colors hover:text-primary', route.path === item.path ? '' : 'text-muted-foreground')"
-			//- 	) {{ item.name }}
 		div(:class="cn('flex flex-1 items-center justify-between space-x-2 md:justify-end')")
 			div(:class="cn('w-full flex-1 md:w-auto md:flex-none')")
 				.relative(class="mt-0.5")
@@ -34,7 +28,14 @@ header.sticky.z-40.top-0.backdrop-blur-lg.border-b.border-border(class="bg-backg
 				TooltipProvider
 					Tooltip
 						TooltipTrigger(as-child)
-							Button(@click="goToSettings()" variant="link" size="icon")
+							Button(@click="goto('/')" variant="link" size="icon")
+								Icon(icon="material-symbols:home" class="w-5 h-5")
+						TooltipContent
+							p Home
+				TooltipProvider
+					Tooltip
+						TooltipTrigger(as-child)
+							Button(@click="goto('/settings')" variant="link" size="icon")
 								Icon(icon="material-symbols:settings" class="w-5 h-5")
 						TooltipContent
 							p Settings
