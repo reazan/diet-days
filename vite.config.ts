@@ -15,6 +15,9 @@ export default defineConfig({
 			allow: ["*"],
 		},
 	},
+	build: {
+		outDir: "./docs",
+	},
 	resolve: {
 		alias: [{ find: "@", replacement: "/src" }],
 	},
