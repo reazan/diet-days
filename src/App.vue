@@ -16,11 +16,11 @@ function goto(path: string) {
 
 <template lang="pug">
 header.sticky.z-40.top-0.backdrop-blur-lg.border-b.border-border(class="bg-background/80")
-	.container.flex.h-14.max-w-screen-2xl.items-center
-		.mr-4(class="md:mr-1 md:flex")
+	.container.flex.h-14.max-w-screen-2xl.items-center.justify-between
+		div(class="md:mr-1 md:flex")
 			RouterLink(to="/" :class="cn('mr-4 md:mr-2 lg:mr-6 flex items-center lg:space-x1 xl:space-x-2')")
 				span.font-bold DietDays
-		div(:class="cn('flex flex-1 items-center justify-between space-x-2 md:justify-end')")
+		div(:class="cn('flex items-center space-x-2')")
 			nav.flex.items-center
 				TooltipProvider
 					Tooltip
