@@ -1,2 +1,4 @@
+![Logo](/assets/logo.png)
+
 # Diet Days
-Personal tracker for my diet activities
+> Personal meal planner for my diet activities
