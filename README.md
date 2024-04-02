@@ -1,4 +1,4 @@
-![Logo](/src/assets/logo.png)
+![Logo](/src/assets/icon.png)
 
 # Diet Days
 > Personal meal planner for my diet activities
