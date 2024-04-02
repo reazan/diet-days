@@ -13,6 +13,8 @@ export const useMainStore = defineStore("main", () => {
 	}
 
 	function setupCurrentDay(day?: DietDay) {
+		if (day?.completed)
+			return;
 		settings.value.currentDietDay = day;
 	}
 

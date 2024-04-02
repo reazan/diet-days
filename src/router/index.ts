@@ -11,6 +11,11 @@ const routes: Array<RouteRecordRaw> = [
 		name: "settings",
 		component: () => import("@/pages/Settings.vue"),
 	},
+	{
+		path: "/about",
+		name: "about",
+		component: () => import("@/pages/About.vue"),
+	},
 ];
 
 // https://vitejs.dev/guide/env-and-mode.html

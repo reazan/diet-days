@@ -1,7 +1,43 @@
 <script setup lang="ts">
+import { DateTime } from "luxon";
+import { formatTimeAgo } from "@vueuse/core";
+import ShowDayOptions from "./components/home/ShowDayOptions.vue";
 import Icon from "@/assets/icon.png";
+import type { DietDay } from "@/stores/main";
 
 const store = useMainStore();
+
+const settings = computed(() => store.settings ?? {});
+
+const nextDayPlan = computed(() => {
+	const dd = settings.value.dietDays;
+	if (dd == null)
+		return undefined;
+
+	return dd.filter(a => !a.completed && settings.value.currentDietDay?.name !== a.name)[0];
+});
+
+function markCurrentDayAsComplete(setNextDay: boolean) {
+	if (settings.value.currentDietDay == null)
+		return;
+
+	settings.value.currentDietDay.completed = true;
+	settings.value.currentDietDay.completedWhen = DateTime.now().toString();
+
+	settings.value.currentDietDay = setNextDay ? settings.value.dietDays?.filter(a => a.name === nextDayPlan.value?.name)[0] : undefined;
+
+	if (settings.value.dietDays?.every(a => a.completed)) {
+		settings.value.dietDays?.forEach((a) => {
+			a.completed = false;
+			a.completed = undefined;
+		});
+	}
+}
+
+function markAsNotCompleted(day: DietDay) {
+	day.completed = false;
+	day.completedWhen = undefined;
+}
 </script>
 
 <template lang="pug">
@@ -15,58 +51,38 @@ const store = useMainStore();
 	div.flex.w-full.items-center.justify-center
 		img(:src="Icon")
 div.mt-4(v-else)
-	div(v-if="store.settings.currentDietDay == null")
+	div(v-if="settings.currentDietDay == null")
 		h1.text-2xl.font-semibold Select day plan
 		h2.text-1xl Select the starting point of your days. You can change whenever you want.
 		hr.my-2
-		.flex.gap-2.flex-wrap
-			TransitionGroup(name="list" appear)
-				template(v-for="day in store.settings.dietDays?.filter(a => a.day !== 'all' && a.options.length > 0)")
-					Card(class="hover:bg-accent cursor-pointer" @click="store.setupCurrentDay(day)")
-						CardHeader
-							CardTitle {{ day.name }}
-						CardContent(class="md:w-[500px]")
-							.mb-1(v-if="day.options.some(a => a.tag === 'breakfast')")
-								h1.text-1xl.font-semibold Breakfast
-								.mb-1(v-for="o in day.options.filter(a => a.tag === 'breakfast')")
-									span -&nbsp;
-									span {{ o.element }}
-							.mb-1(v-if="day.options.some(a => a.tag === 'lunch')")
-								h1.text-1xl.font-semibold Lunch
-								.mb-1(v-for="o in day.options.filter(a => a.tag === 'lunch')")
-									span -&nbsp;
-									span {{ o.element }}
-							.mb-1(v-if="day.options.some(a => a.tag === 'snack')")
-								h1.text-1xl.font-semibold Snacks
-								.mb-1(v-for="o in day.options.filter(a => a.tag === 'snack')")
-									span -&nbsp;
-									span {{ o.element }}
-							.mb-1(v-if="day.options.some(a => a.tag === 'dinner')")
-								h1.text-1xl.font-semibold Dinner
-								.mb-1(v-for="o in day.options.filter(a => a.tag === 'dinner')")
-									span -&nbsp;
-									span {{ o.element }}
+		.flex.gap-2.flex-wrap.justify-center
+			template(v-for="day in settings.dietDays?.filter(a => a.day !== 'all' && a.options.length > 0)")
+				Card(:class="!day.completed ? 'hover:bg-accent cursor-pointer' : 'bg-accent'" @click="store.setupCurrentDay(day)")
+					CardHeader
+						CardTitle {{ day.name }}
+						CardDescription(v-if="day.completed && day.completedWhen != null") {{ formatTimeAgo(DateTime.fromISO(day.completedWhen).toJSDate()) }}
+					CardContent(class="md:w-[500px]")
+						ShowDayOptions(:day="day")
+					CardFooter(v-if="day.completed" class="flex justify-end")
+						Button(variant="destructive" @click="markAsNotCompleted(day)") Reset
 	div(v-else)
-		Button(variant="outline" @click="store.setupCurrentDay()") Change current day
-		div {{ store.settings.currentDietDay.name }}
-		div(v-for="a in store.settings.currentDietDay.options")
-			span - {{ a.element }}
+		Tabs(default-value="current" class="w-full")
+				TabsList(class="grid w-full grid-cols-2")
+					TabsTrigger(value="current") Current
+					TabsTrigger(value="next") Next
+				TabsContent(value="current")
+
+					h1(:class="cn('mb-4 text-1xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]')") {{ settings.currentDietDay.name }}
+					ShowDayOptions(:day="settings.currentDietDay")
+
+					.flex.justify-end.gap-2
+						Button(@click="store.setupCurrentDay()" variant="ghost") Change
+						Button(@click="markCurrentDayAsComplete(false)" variant="outline") Complete
+						Button(@click="markCurrentDayAsComplete(true)") Start next
+				TabsContent(value="next")
+					div(v-if="nextDayPlan == null")
+						i Restart week meal plan!
+					div(v-else)
+						h1(:class="cn('mb-4 text-1xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]')") {{ nextDayPlan.name }}
+						ShowDayOptions(:day="nextDayPlan")
 </template>
-
-<style scoped>
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(15px);
-}
-
-.list-leave-active {
-  position: absolute;
-}
-</style>

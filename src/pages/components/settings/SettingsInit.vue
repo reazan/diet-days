@@ -18,7 +18,7 @@ const emit = defineEmits<{
 const store = useMainStore();
 
 const username = ref("");
-type stepTypes = "username" | "diet-days" | "review";
+type StepTypes = "username" | "diet-days" | "review";
 
 const breakfastForAllWeek = ref(false);
 const breakfastWeek = ref<DietDay>({
@@ -93,7 +93,8 @@ onMounted(() => {
 		defaultDietDays.value = props.default;
 });
 
-const currentStep = ref<stepTypes>("username");
+const currentStep = ref<StepTypes>("username");
+const router = useRouter();
 
 function save() {
 	if (breakfastForAllWeek.value)
@@ -106,6 +107,11 @@ function save() {
 	store.setupUsername(username.value);
 
 	emit("close");
+
+	if (isChangeSettings.value)
+		return;
+
+	router.push({ path: "/" });
 }
 
 const getNormalDayOptions = computed(() => {
