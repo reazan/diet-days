@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DrawerTrigger } from "vaul-vue";
+import { DrawerClose, DrawerTrigger } from "vaul-vue";
 import { Icon } from "@iconify/vue";
 import type { DietDay, DietDayType } from "@/stores/main";
 
@@ -9,6 +9,26 @@ const props = defineProps<{
 }>();
 
 const defaultValue = computed(() => props.options.includes("breakfast") ? "breakfast" : "lunch");
+
+const oldDay = ref<DietDay>();
+onMounted(() => {
+	submit();
+});
+
+function restore() {
+	if (oldDay.value == null)
+		return;
+
+	props.day.completed = oldDay.value.completed;
+	props.day.completedWhen = oldDay.value.completedWhen;
+	props.day.day = oldDay.value.day;
+	props.day.name = oldDay.value.name;
+	props.day.options = JSON.parse(JSON.stringify(oldDay.value.options ?? []));
+}
+
+function submit() {
+	oldDay.value = JSON.parse(JSON.stringify(props.day));
+}
 </script>
 
 <template lang="pug">
@@ -39,14 +59,15 @@ Drawer
 								Label: i Add meal options for {{ o }}
 							div(v-for="options in day.options.filter(a => a.tag == o)" class="rounded-lg border mb-2 p-3")
 								Textarea(v-model="options.element" :placeholder="`Insert ${o} meal option...`").mb-2
-								div.flex.justify-between.items-center.text-sm
-									div.flex.items-center.gap-2
-										div Quantity
-										div: Input(type="number" v-model="options.quantity" class="h-7 w-20")
-										div g
-									div
-										Button(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
-											Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
+
+								div.w-full
+									Button.w-full(variant="destructive" class="h-7" @click="day.options.splice(day.options.indexOf(options), 1)")
+										Icon(icon="material-symbols:delete-rounded" class="w-5 h-5")
+		DrawerFooter
+			DrawerClose(as-child @click="submit()")
+				Button Submit
+			DrawerClose(as-child)
+				Button(variant="outline" @click="restore()") Cancel
 </template>
 
 <style>

@@ -9,6 +9,8 @@ const store = useMainStore();
 
 const settings = computed(() => store.settings ?? {});
 
+onMounted(() => updateNow());
+
 const nextDayPlan = computed(() => {
 	const dd = settings.value.dietDays;
 	if (dd == null)
@@ -38,6 +40,18 @@ function markAsNotCompleted(day: DietDay) {
 	day.completed = false;
 	day.completedWhen = undefined;
 }
+
+const now = ref("");
+
+let nowTimeout: ReturnType<typeof setTimeout>;
+function updateNow() {
+	clearTimeout(nowTimeout);
+
+	setTimeout(() => {
+		now.value = DateTime.now().toFormat("dd/MMM/yyyy HH:mm:ss");
+		updateNow();
+	}, 1000);
+}
 </script>
 
 <template lang="pug">
@@ -57,7 +71,7 @@ div.mt-4(v-else)
 		hr.my-2
 		.flex.gap-2.flex-wrap.justify-center
 			template(v-for="day in settings.dietDays?.filter(a => a.day !== 'all' && a.options.length > 0)")
-				Card(:class="!day.completed ? 'hover:bg-accent cursor-pointer' : 'bg-accent'" @click="store.setupCurrentDay(day)")
+				Card(:class="!day.completed ? 'hover:bg-accent cursor-pointer' : 'bg-accent'" @click="store.setupCurrentDay(day)" class="w-full md:w-[500px]")
 					CardHeader
 						CardTitle {{ day.name }}
 						CardDescription(v-if="day.completed && day.completedWhen != null") {{ formatTimeAgo(DateTime.fromISO(day.completedWhen).toJSDate()) }}
@@ -66,16 +80,20 @@ div.mt-4(v-else)
 					CardFooter(v-if="day.completed" class="flex justify-end")
 						Button(variant="destructive" @click="markAsNotCompleted(day)") Reset
 	div(v-else)
+		.flex.justify-center
+			.flex.flex-col.mb-4.items-center
+				h1(:class="cn('text-4xl text-center font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.username }}
+				h1(:class="cn('text-1xl text-center  leading-tight tracking-tighter lg:leading-[1.1]')") {{ now }}
 		Tabs(default-value="current" class="w-full")
 				TabsList(class="grid w-full grid-cols-2")
 					TabsTrigger(value="current") Current
 					TabsTrigger(value="next") Next
 				TabsContent(value="current")
 
-					h1(:class="cn('mb-4 text-1xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]')") {{ settings.currentDietDay.name }}
+					h1(:class="cn('mb-4 text-3xl font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.currentDietDay.name }}
 					ShowDayOptions(:day="settings.currentDietDay")
 
-					.flex.justify-end.gap-2
+					.flex.justify-center.gap-2.mt-2(class="md:justify-end")
 						Button(@click="store.setupCurrentDay()" variant="ghost") Change
 						Button(@click="markCurrentDayAsComplete(false)" variant="outline") Complete
 						Button(@click="markCurrentDayAsComplete(true)") Start next
@@ -83,6 +101,6 @@ div.mt-4(v-else)
 					div(v-if="nextDayPlan == null")
 						i Restart week meal plan!
 					div(v-else)
-						h1(:class="cn('mb-4 text-1xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]')") {{ nextDayPlan.name }}
+						h1(:class="cn('mb-4 text-3xl font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ nextDayPlan.name }}
 						ShowDayOptions(:day="nextDayPlan")
 </template>
