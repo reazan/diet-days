@@ -10,10 +10,10 @@ const settings = computed(() => store.settings ?? {});
 
 <template lang="pug">
 .w-full
-	.mb-3(v-if="settings.dietDays?.filter(a => a.day === 'all')[0]?.options.some(a => a.tag === 'breakfast')")
+	.mb-3(v-if="settings.dietDays?.filter(a => a.day === 'all-breakfast')[0] != null")
 		h1.text-1xl.font-semibold Breakfast
 		hr.my-2
-		.mb-1(v-for="o in settings.dietDays?.filter(a => a.day === 'all')[0]?.options.filter(a => a.tag === 'breakfast')")
+		.mb-1(v-for="o in settings.dietDays?.filter(a => a.day === 'all-breakfast')[0]?.options")
 			span -&nbsp;
 			span {{ o.element }}
 	.mb-3(v-else-if="day.options.some(a => a.tag === 'breakfast')")
@@ -28,10 +28,10 @@ const settings = computed(() => store.settings ?? {});
 		.mb-1(v-for="o in day.options.filter(a => a.tag === 'lunch')")
 			span -&nbsp;
 			span {{ o.element }}
-	.mb-3(v-if="settings.dietDays?.filter(a => a.day === 'all')[0]?.options.some(a => a.tag === 'snack')")
+	.mb-3(v-if="settings.dietDays?.filter(a => a.day === 'all-snack')[0] != null")
 		h1.text-1xl.font-semibold Snacks
 		hr.my-2
-		.mb-1(v-for="o in settings.dietDays?.filter(a => a.day === 'all')[0]?.options.filter(a => a.tag === 'snack')")
+		.mb-1(v-for="o in settings.dietDays?.filter(a => a.day === 'all-snack')[0]?.options")
 			span -&nbsp;
 			span {{ o.element }}
 	.mb-3(v-else-if="day.options.some(a => a.tag === 'snack')")
