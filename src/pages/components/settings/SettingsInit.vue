@@ -5,6 +5,7 @@ import DayDrawer from "./DayDrawer.vue";
 import type { DietDay, DietDayType } from "@/stores/main";
 
 const props = defineProps<{
+	state?: string
 	username?: string
 	default?: Array<DietDay>
 	breakfast?: DietDay
@@ -22,13 +23,13 @@ type StepTypes = "username" | "diet-days" | "review";
 
 const breakfastForAllWeek = ref(false);
 const breakfastWeek = ref<DietDay>({
-	day: "all",
+	day: "all-breakfast",
 	options: [],
 	name: "Breakfast",
 });
 const snackForAllWeek = ref(false);
 const snackWeek = ref<DietDay>({
-	day: "all",
+	day: "all-snack",
 	options: [],
 	name: "Snacks",
 });
@@ -91,27 +92,34 @@ onMounted(() => {
 
 	if (props.default != null)
 		defaultDietDays.value = props.default;
+
+	save(false);
+});
+
+onUnmounted(() => {
+	if (store.settings.state === "completed")
+		return;
+
+	save(false);
 });
 
 const currentStep = ref<StepTypes>("username");
 const router = useRouter();
 
-function save() {
-	if (breakfastForAllWeek.value)
+function save(completed: boolean) {
+	if (breakfastForAllWeek.value && defaultDietDays.value.every(a => a.day !== "all-breakfast"))
 		defaultDietDays.value.push(breakfastWeek.value);
 
-	if (snackForAllWeek.value)
+	if (snackForAllWeek.value && defaultDietDays.value.every(a => a.day !== "all-snack"))
 		defaultDietDays.value.push(snackWeek.value);
 
 	store.setupDietDays(defaultDietDays.value);
 	store.setupUsername(username.value);
 
-	emit("close");
+	store.setupState(completed ? "completed" : "editing");
 
-	if (isChangeSettings.value)
-		return;
-
-	router.push({ path: "/" });
+	if (store.settings.state === "completed")
+		router.push({ path: "/" });
 }
 
 const getNormalDayOptions = computed(() => {
@@ -129,6 +137,11 @@ const getNormalDayOptions = computed(() => {
 
 	return options;
 });
+
+function changeStep(type: StepTypes, completed: boolean) {
+	currentStep.value = type;
+	save(completed);
+}
 </script>
 
 <template lang="pug">
@@ -150,7 +163,7 @@ const getNormalDayOptions = computed(() => {
 					.flex.gap-2.items-center
 						div: Icon(icon="material-symbols:arrow-back" class="w-5 h-5")
 						div Exit
-				Button.h-9(@click="currentStep = 'diet-days'" :disabled="username.trim() === ''" variant="outline")
+				Button.h-9(@click="changeStep('diet-days', false)" :disabled="username.trim() === ''" variant="outline")
 					.flex.gap-2.items-center
 						div Next
 						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
@@ -170,28 +183,28 @@ const getNormalDayOptions = computed(() => {
 
 				.flex.gap-2.flex-wrap.mb-2
 					.grow(v-if="breakfastForAllWeek")
-						DayDrawer(:day="breakfastWeek" :options="['breakfast']")
+						DayDrawer(:day="breakfastWeek" :options="['breakfast']" @submit="save(false)")
 					.grow(v-if="snackForAllWeek")
-						DayDrawer(:day="snackWeek" :options="['snack']")
+						DayDrawer(:day="snackWeek" :options="['snack']" @submit="save(false)")
 
 				hr.mb-2
 				.flex.gap-2.flex-wrap
-					.grow.w-60(v-for="d in defaultDietDays")
-						DayDrawer(:day="d" :options="getNormalDayOptions")
+					.grow.w-60(v-for="d in defaultDietDays.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast')")
+						DayDrawer(:day="d" :options="getNormalDayOptions" @submit="save(false)")
 			CardFooter(class="flex justify-end gap-1 px-6 pb-6")
 				Button.h-9(v-if="isChangeSettings" @click="emit('close')" variant="ghost")
 					.flex.gap-2.items-center
 						div: Icon(icon="material-symbols:arrow-back" class="w-5 h-5")
 						div Exit
-				Button.h-9(@click="currentStep = 'username'" variant="outline")
+				Button.h-9(@click="changeStep('username', false)" variant="outline")
 					.flex.gap-2.items-center
 						div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
 						div Back
 
-				Button.h-9(@click="currentStep = 'review'" variant="outline")
+				Button.h-9(@click="changeStep('review', false)" variant="outline")
 					.flex.gap-2.items-center
 						div Next
-						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5")
+						div: Icon(icon="material-symbols:chevron-right-rounded" class="w-5 h-5" @submit="save(false)")
 .flex.justify-center.w-100(v-else)
 	Card(style="width: 500px;")
 		CardHeader
@@ -211,7 +224,7 @@ const getNormalDayOptions = computed(() => {
 						.mb-1(v-for="o in snackWeek.options")
 							span -&nbsp;
 							span {{ o.element }}
-				AccordionItem(v-for="day in defaultDietDays.filter(a => a.day !== 'all')" :key="day.day" :value="day.day")
+				AccordionItem(v-for="day in defaultDietDays.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast')" :key="day.day" :value="day.day")
 					AccordionTrigger {{ day.name }}
 					AccordionContent
 						.mb-1(v-if="day.options.some(a => a.tag === 'breakfast')")
@@ -240,12 +253,12 @@ const getNormalDayOptions = computed(() => {
 				.flex.gap-2.items-center
 					div: Icon(icon="material-symbols:arrow-back" class="w-5 h-5")
 					div Exit
-			Button.h-9(@click="currentStep = 'diet-days'" variant="outline")
+			Button.h-9(@click="changeStep('diet-days', false)" variant="outline")
 				.flex.gap-2.items-center
 					div: Icon(icon="material-symbols:chevron-left-rounded" class="w-5 h-5")
 					div Back
 
-			Button.h-9(@click="save()")
+			Button.h-9(@click="save(true)")
 				.flex.gap-2.items-center
 					div Save
 					div: Icon(icon="material-symbols:save" class="w-5 h-5")

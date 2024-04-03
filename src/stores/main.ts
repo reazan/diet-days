@@ -1,3 +1,4 @@
+import { set } from "@vueuse/core";
 import { defineStore } from "pinia";
 
 const localStorageSettings = useLocalStorage<Settings>(
@@ -22,16 +23,21 @@ export const useMainStore = defineStore("main", () => {
 		settings.value.dietDays = dietDays;
 	}
 
+	function setupState(state: SettingsStateType) {
+		settings.value.state = state;
+	}
+
 	return {
 		settings,
 		setupUsername,
 		setupCurrentDay,
 		setupDietDays,
+		setupState,
 	};
 });
 
 export interface DietDay {
-	day: "day1" | "day2" | "day3" | "day4" | "day5" | "day6" | "day7" | "all"
+	day: "day1" | "day2" | "day3" | "day4" | "day5" | "day6" | "day7" | "all-breakfast" | "all-snack"
 	name?: string
 	options: Array<DietDayOptions>
 	completed?: boolean
@@ -39,6 +45,7 @@ export interface DietDay {
 }
 
 export type DietDayType = "lunch" | "dinner" | "breakfast" | "snack";
+export type SettingsStateType = "completed" | "editing";
 
 export interface DietDayOptions {
 	tag: DietDayType
@@ -50,4 +57,5 @@ export interface Settings {
 	username?: string
 	currentDietDay?: DietDay
 	dietDays?: Array<DietDay>
+	state?: SettingsStateType
 }

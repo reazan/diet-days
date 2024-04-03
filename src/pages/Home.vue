@@ -55,7 +55,7 @@ function updateNow() {
 </script>
 
 <template lang="pug">
-.w-full(v-if="store.settings.username === undefined").mt-10
+.w-full(v-if="store.settings.state !== 'completed'").mt-10
 	h1(:class="cn('text-center mb-2 text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]')") Setup your diet plan!
 	div.flex.w-full.items-center.justify-center
 		span(:class="cn('text-center text-lg text-muted-foreground sm:text-xl')" style="display: inline-block; vertical-align: top; text-decoration: inherit; text-wrap: initial; max-width: 568px;") Simplify your meal routine!
@@ -70,7 +70,7 @@ div.mt-4(v-else)
 		h2.text-1xl Select the starting point of your days. You can change whenever you want.
 		hr.my-2
 		.flex.gap-2.flex-wrap.justify-center
-			template(v-for="day in settings.dietDays?.filter(a => a.day !== 'all' && a.options.length > 0)")
+			template(v-for="day in settings.dietDays?.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast' && a.options.length > 0)")
 				Card(:class="!day.completed ? 'hover:bg-accent cursor-pointer' : 'bg-accent'" @click="store.setupCurrentDay(day)" class="w-full md:w-[500px]")
 					CardHeader
 						CardTitle {{ day.name }}
@@ -81,7 +81,7 @@ div.mt-4(v-else)
 						Button(variant="destructive" @click="markAsNotCompleted(day)") Reset
 	div(v-else)
 		.flex.justify-center
-			.flex.flex-col.mb-4.items-center
+			.flex.flex-col.mb-4.items-center.gap-2
 				h1(:class="cn('text-4xl text-center font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.username }}
 				h1(:class="cn('text-1xl text-center  leading-tight tracking-tighter lg:leading-[1.1]')") {{ now }}
 		Tabs(default-value="current" class="w-full")

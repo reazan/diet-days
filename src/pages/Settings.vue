@@ -12,15 +12,22 @@ const username = ref<string>();
 const breakfast = ref<DietDay>();
 const snacks = ref<DietDay>();
 
+onMounted(() => {
+	if (store.settings.state === "completed")
+		return;
+
+	startReset();
+});
+
 function startReset() {
 	username.value = store.settings.username;
-	const days = store.settings.dietDays?.filter(a => a.day !== "all");
+	const days = store.settings.dietDays?.filter(a => a.day !== "all-snack" && a.day !== "all-breakfast");
 	defaultDays.value = days != null ? JSON.parse(JSON.stringify(days)) : undefined;
 
-	const bfs = store.settings.dietDays?.filter(a => a.day === "all" && a.options.some(b => b.tag === "breakfast"))[0];
+	const bfs = store.settings.dietDays?.filter(a => a.day === "all-breakfast")[0];
 	breakfast.value = bfs != null ? JSON.parse(JSON.stringify(bfs)) : undefined;
 
-	const snk = store.settings.dietDays?.filter(a => a.day === "all" && a.options.some(b => b.tag === "snack"))[0];
+	const snk = store.settings.dietDays?.filter(a => a.day === "all-snack")[0];
 	snacks.value = snk != null ? JSON.parse(JSON.stringify(snk)) : undefined;
 
 	changeSettings.value = true;
@@ -43,27 +50,26 @@ function reset() {
 </script>
 
 <template lang="pug">
-.w-full.mt-4
+.w-full.mt-4(v-if="changeSettings")
 	SettingsInit(
-		v-if="store.settings.username === undefined || changeSettings"
 		@close="close()"
 		:username="username"
 		:default="defaultDays"
 		:breakfast="breakfast"
 		:snacks="snacks"
 	)
-	.flex.flex-col.gap-2.justify-center(v-else)
-		Button(variant="outline" @click="startReset") Change Settings
-		Dialog
-			DialogTrigger(as-child)
-				Button(variant="destructive") Reset
-			DialogContent
-				DialogHeader
-					DialogTitle Are you sure?
-					DialogDescription This operation will clear all your settings and cannot be reverted.
-				DialogFooter
-					DialogClose(as-child)
-						Button.h-8(variant="outline") Cancel
-					DialogClose(as-child)
-						Button.h-8(variant="destructive" @click="reset()") Proceed
+.flex.flex-col.gap-2.justify-center.mt-4(v-else)
+	Button(variant="outline" @click="startReset") Change Settings
+	Dialog
+		DialogTrigger(as-child)
+			Button(variant="destructive") Reset
+		DialogContent
+			DialogHeader
+				DialogTitle Are you sure?
+				DialogDescription This operation will clear all your settings and cannot be reverted.
+			DialogFooter
+				DialogClose(as-child)
+					Button.h-8(variant="outline") Cancel
+				DialogClose(as-child)
+					Button.h-8(variant="destructive" @click="reset()") Proceed
 </template>

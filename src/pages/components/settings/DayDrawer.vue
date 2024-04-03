@@ -8,6 +8,10 @@ const props = defineProps<{
 	options: DietDayType[]
 }>();
 
+const emit = defineEmits<{
+	submit: [void]
+}>();
+
 const defaultValue = computed(() => props.options.includes("breakfast") ? "breakfast" : "lunch");
 
 const oldDay = ref<DietDay>();
@@ -28,6 +32,7 @@ function restore() {
 
 function submit() {
 	oldDay.value = JSON.parse(JSON.stringify(props.day));
+	emit("submit");
 }
 </script>
 
@@ -54,7 +59,7 @@ Drawer
 						.text-center
 							Button(variant="link" @click="day.options.push({ tag: o, element: '', quantity: 0 })")
 								Icon(icon="material-symbols:note-stack-add-rounded" class="w-10 h-10")
-						ScrollArea(class="h-96 w-full")
+						ScrollArea(class="h-80 w-full")
 							.text-center(v-if="day.options.length === 0")
 								Label: i Add meal options for {{ o }}
 							div(v-for="options in day.options.filter(a => a.tag == o)" class="rounded-lg border mb-2 p-3")
