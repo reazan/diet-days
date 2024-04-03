@@ -81,12 +81,12 @@ onMounted(() => {
 	}
 
 	if (props.breakfast != null) {
-		breakfastForAllWeek.value = true;
+		breakfastForAllWeek.value = props.breakfast.options.length > 0;
 		breakfastWeek.value = props.breakfast;
 	}
 
 	if (props.snacks != null) {
-		snackForAllWeek.value = true;
+		snackForAllWeek.value = props.snacks.options.length > 0;
 		snackWeek.value = props.snacks;
 	}
 
@@ -212,41 +212,42 @@ function changeStep(type: StepTypes, completed: boolean) {
 			CardDescription Check if it is all good
 		CardContent
 			Accordion(type="single" class="w-full" collapsible)
-				AccordionItem(v-if="breakfastForAllWeek" value="breakfast" key="breakfast")
+				AccordionItem(v-if="breakfastForAllWeek && breakfastWeek.options.length > 0" value="breakfast" key="breakfast")
 					AccordionTrigger Breakfast
 					AccordionContent
 						.mb-1(v-for="o in breakfastWeek.options")
 							span -&nbsp;
 							span {{ o.element }}
-				AccordionItem(v-if="snackForAllWeek" value="snack" key="snack")
+				AccordionItem(v-if="snackForAllWeek && snackWeek.options.length > 0" value="snack" key="snack")
 					AccordionTrigger Snacks
 					AccordionContent
 						.mb-1(v-for="o in snackWeek.options")
 							span -&nbsp;
 							span {{ o.element }}
-				AccordionItem(v-for="day in defaultDietDays.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast')" :key="day.day" :value="day.day")
-					AccordionTrigger {{ day.name }}
-					AccordionContent
-						.mb-1(v-if="day.options.some(a => a.tag === 'breakfast')")
-							h1.text-1xl.font-semibold Breakfast
-							.mb-1(v-for="o in day.options.filter(a => a.tag === 'breakfast')")
-								span -&nbsp;
-								span {{ o.element }}
-						.mb-1(v-if="day.options.some(a => a.tag === 'lunch')")
-							h1.text-1xl.font-semibold Lunch
-							.mb-1(v-for="o in day.options.filter(a => a.tag === 'lunch')")
-								span -&nbsp;
-								span {{ o.element }}
-						.mb-1(v-if="day.options.some(a => a.tag === 'snack')")
-							h1.text-1xl.font-semibold Snacks
-							.mb-1(v-for="o in day.options.filter(a => a.tag === 'snack')")
-								span -&nbsp;
-								span {{ o.element }}
-						.mb-1(v-if="day.options.some(a => a.tag === 'dinner')")
-							h1.text-1xl.font-semibold Dinner
-							.mb-1(v-for="o in day.options.filter(a => a.tag === 'dinner')")
-								span -&nbsp;
-								span {{ o.element }}
+				template(v-for="day in defaultDietDays.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast')")
+					AccordionItem(:value="day.day" v-if="day.options.length > 0")
+						AccordionTrigger {{ day.name }}
+						AccordionContent
+							.mb-1(v-if="day.options.some(a => a.tag === 'breakfast')")
+								h1.text-1xl.font-semibold Breakfast
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'breakfast')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'lunch')")
+								h1.text-1xl.font-semibold Lunch
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'lunch')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'snack')")
+								h1.text-1xl.font-semibold Snacks
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'snack')")
+									span -&nbsp;
+									span {{ o.element }}
+							.mb-1(v-if="day.options.some(a => a.tag === 'dinner')")
+								h1.text-1xl.font-semibold Dinner
+								.mb-1(v-for="o in day.options.filter(a => a.tag === 'dinner')")
+									span -&nbsp;
+									span {{ o.element }}
 
 		CardFooter(class="flex justify-end gap-1 px-6 pb-6")
 			Button.h-9(v-if="isChangeSettings" @click="emit('close')" variant="ghost")
