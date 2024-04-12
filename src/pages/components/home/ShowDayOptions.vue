@@ -9,7 +9,7 @@ const settings = computed(() => store.settings ?? {});
 </script>
 
 <template lang="pug">
-.w-full
+.w-full.text-sm
 	.mb-3(v-if="settings.dietDays?.filter(a => a.day === 'all-breakfast')[0] != null")
 		h1.text-1xl.font-semibold Breakfast
 		hr.my-2

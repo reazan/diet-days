@@ -4,6 +4,7 @@ import { formatTimeAgo } from "@vueuse/core";
 import ShowDayOptions from "./components/home/ShowDayOptions.vue";
 import Icon from "@/assets/icon.png";
 import type { DietDay } from "@/stores/main";
+import Badge from "@/components/ui/badge/Badge.vue";
 
 const store = useMainStore();
 
@@ -11,29 +12,18 @@ const settings = computed(() => store.settings ?? {});
 
 onMounted(() => updateNow());
 
-const nextDayPlan = computed(() => {
-	const dd = settings.value.dietDays;
-	if (dd == null)
-		return undefined;
+const currentTab = ref("current");
 
-	return dd.filter(a => !a.completed && settings.value.currentDietDay?.name !== a.name)[0];
-});
-
-function markCurrentDayAsComplete(setNextDay: boolean) {
+function markCurrentDayAsComplete() {
 	if (settings.value.currentDietDay == null)
 		return;
 
 	settings.value.currentDietDay.completed = true;
 	settings.value.currentDietDay.completedWhen = DateTime.now().toString();
 
-	settings.value.currentDietDay = setNextDay ? settings.value.dietDays?.filter(a => a.name === nextDayPlan.value?.name)[0] : undefined;
+	store.setupCurrentDay(undefined);
 
-	if (settings.value.dietDays?.every(a => a.completed)) {
-		settings.value.dietDays?.forEach((a) => {
-			a.completed = false;
-			a.completed = undefined;
-		});
-	}
+	currentTab.value = "options";
 }
 
 function markAsNotCompleted(day: DietDay) {
@@ -52,6 +42,15 @@ function updateNow() {
 		updateNow();
 	}, 1000);
 }
+
+function resetAll() {
+	settings.value.dietDays?.forEach(markAsNotCompleted);
+}
+
+function selectDay(day: DietDay) {
+	store.setupCurrentDay(day);
+	currentTab.value = "current";
+}
 </script>
 
 <template lang="pug">
@@ -65,42 +64,52 @@ function updateNow() {
 	div.flex.w-full.items-center.justify-center
 		img(:src="Icon")
 div.mt-4(v-else)
-	div(v-if="settings.currentDietDay == null")
-		h1.text-2xl.font-semibold Select day plan
-		h2.text-1xl Select the starting point of your days. You can change whenever you want.
-		hr.my-2
-		.flex.gap-2.flex-wrap.justify-center
-			template(v-for="day in settings.dietDays?.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast' && a.options.length > 0)")
-				Card(:class="!day.completed ? 'hover:bg-accent cursor-pointer' : 'bg-accent'" @click="store.setupCurrentDay(day)" class="w-full md:w-[500px]")
-					CardHeader
-						CardTitle {{ day.name }}
-						CardDescription(v-if="day.completed && day.completedWhen != null") {{ formatTimeAgo(DateTime.fromISO(day.completedWhen).toJSDate()) }}
-					CardContent(class="md:w-[500px]")
-						ShowDayOptions(:day="day")
-					CardFooter(v-if="day.completed" class="flex justify-end")
-						Button(variant="destructive" @click="markAsNotCompleted(day)") Reset
-	div(v-else)
-		.flex.justify-center
-			.flex.flex-col.mb-4.items-center.gap-2
-				h1(:class="cn('text-4xl text-center font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.username }}
-				h1(:class="cn('text-1xl text-center  leading-tight tracking-tighter lg:leading-[1.1]')") {{ now }}
-		Tabs(default-value="current" class="w-full")
-				TabsList(class="grid w-full grid-cols-2")
-					TabsTrigger(value="current") Current
-					TabsTrigger(value="next") Next
-				TabsContent(value="current")
+	.flex.justify-center
+		.flex.flex-col.mb-4.items-center.gap-2
+			h1(:class="cn('text-4xl text-center font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.username }}
+			h1(:class="cn('text-1xl text-center  leading-tight tracking-tighter lg:leading-[1.1]')") {{ now }}
+	Tabs(class="w-full" v-model="currentTab")
+		TabsList(class="grid w-full grid-cols-2")
+			TabsTrigger(value="current") Current
+			TabsTrigger(value="options") Options
+		TabsContent(value="current")
+			.flex.justify-center.mt-4(v-if="settings.currentDietDay == null")
+				Button(size="sm" @click="currentTab = 'options'" variant="outline") Go to options
+			div(v-else)
+				h1(:class="cn('mb-4 text-3xl font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.currentDietDay.name }}
+				ShowDayOptions(:day="settings.currentDietDay")
 
-					h1(:class="cn('mb-4 text-3xl font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ settings.currentDietDay.name }}
-					ShowDayOptions(:day="settings.currentDietDay")
+				.w-full.mt-2(class="md:justify-end")
+					Button.w-full(@click="markCurrentDayAsComplete()" variant="default" size="sm") Complete
+		TabsContent(value="options")
+			Accordion(type="single" class="w-full" collapsible)
+				template(v-for="day in settings.dietDays?.filter(a => a.day != 'all-snack' && a.day != 'all-breakfast')")
+					AccordionItem(:value="day.day" v-if="day.options.length > 0")
+						AccordionTrigger
+							.flex.gap-2
+								div {{ day.name }}
+								div
+									Badge(variant="outline" v-if="settings.currentDietDay?.name === day.name") Current
+									Badge(variant="default" v-else-if="day.completed") Done
+									Badge(variant="secondary" v-else) TODO
 
-					.flex.justify-center.gap-2.mt-2(class="md:justify-end")
-						Button(@click="store.setupCurrentDay()" variant="ghost") Change
-						Button(@click="markCurrentDayAsComplete(false)" variant="outline") Complete
-						Button(@click="markCurrentDayAsComplete(true)") Start next
-				TabsContent(value="next")
-					div(v-if="nextDayPlan == null")
-						i Restart week meal plan!
-					div(v-else)
-						h1(:class="cn('mb-4 text-3xl font-bold leading-tight tracking-tighter lg:leading-[1.1]')") {{ nextDayPlan.name }}
-						ShowDayOptions(:day="nextDayPlan")
+						AccordionContent
+							ShowDayOptions(:day="day")
+							.w-full(v-if="day.completed")
+								Button.w-full(variant="secondary" @click="markAsNotCompleted(day)" size="sm") TODO
+							.w-full(v-if="!day.completed && settings.currentDietDay?.name != day.name")
+								Button.w-full(variant="default" @click="selectDay(day)" size="sm") Select
+			hr
+			Dialog
+				DialogTrigger(as-child).w-full.mt-4
+					Button.w-full(variant="destructive") Reset
+				DialogContent
+					DialogHeader
+						DialogTitle Are you sure?
+						DialogDescription This operation will mark all days as not completed.
+					DialogFooter
+						DialogClose(as-child)
+							Button.h-8(variant="outline") Cancel
+						DialogClose(as-child)
+							Button.h-8(variant="destructive" @click="resetAll()") Proceed
 </template>
