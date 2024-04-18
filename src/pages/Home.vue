@@ -21,9 +21,19 @@ function markCurrentDayAsComplete() {
 	settings.value.currentDietDay.completed = true;
 	settings.value.currentDietDay.completedWhen = DateTime.now().toString();
 
+	const day = settings.value.dietDays?.filter(a => a.name === settings.value.currentDietDay?.name)[0];
+
+	if (day == null)
+		return;
+
+	day.completed = true;
+	day.completedWhen = DateTime.now().toString();
+
 	store.setupCurrentDay(undefined);
 
-	currentTab.value = "options";
+	nextTick(() => {
+		currentTab.value = "options";
+	});
 }
 
 function markAsNotCompleted(day: DietDay) {
