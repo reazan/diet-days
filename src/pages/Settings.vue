@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SettingsInit from "./components/settings/SettingsInit.vue";
+import SettingsImport from "./components/settings/SettingsImport.vue";
 import DialogClose from "@/components/ui/dialog/DialogClose.vue";
 import DialogFooter from "@/components/ui/dialog/DialogFooter.vue";
 import type { DietDay } from "@/stores/main";
@@ -60,6 +61,7 @@ function reset() {
 	)
 .flex.flex-col.gap-2.justify-center.mt-4(v-else)
 	Button(variant="outline" @click="startReset") Change Settings
+	SettingsImport
 	Dialog
 		DialogTrigger(as-child)
 			Button(variant="destructive") Reset

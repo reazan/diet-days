@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { DateTime } from "luxon";
-import { formatTimeAgo } from "@vueuse/core";
 import ShowDayOptions from "./components/home/ShowDayOptions.vue";
+import SettingsImport from "./components/settings/SettingsImport.vue";
 import Icon from "@/assets/icon.png";
 import type { DietDay } from "@/stores/main";
-import Badge from "@/components/ui/badge/Badge.vue";
 
 const store = useMainStore();
 
@@ -70,7 +69,7 @@ function selectDay(day: DietDay) {
 		span(:class="cn('text-center text-lg text-muted-foreground sm:text-xl')" style="display: inline-block; vertical-align: top; text-decoration: inherit; text-wrap: initial; max-width: 568px;") Simplify your meal routine!
 	section(:class="cn('flex w-full items-center justify-center space-x-4 py-4 md:pb-10')")
 		RouterLink(to="/settings" :class="cn('inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 rounded-[6px]')") Get started!
-
+		SettingsImport(:showCopyButton="false")
 	div.flex.w-full.items-center.justify-center
 		img(:src="Icon")
 div.mt-4(v-else)
